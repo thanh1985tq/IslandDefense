@@ -2965,7 +2965,13 @@
                     {
                       "hasCustomCollisionMask": false,
                       "image": "EnemyGun-1.png",
-                      "points": [],
+                      "points": [
+                        {
+                          "name": "bullet",
+                          "x": 64,
+                          "y": 30.5
+                        }
+                      ],
                       "originPoint": {
                         "name": "origine",
                         "x": 32,
@@ -3002,6 +3008,50 @@
             "g": 0,
             "r": 253
           }
+        },
+        {
+          "name": "EnemyBullet",
+          "type": "Sprite",
+          "updateIfNotVisible": false,
+          "variables": [],
+          "behaviors": [
+            {
+              "extraBorder": 0,
+              "name": "DestroyOutside",
+              "type": "DestroyOutsideBehavior::DestroyOutside"
+            }
+          ],
+          "animations": [
+            {
+              "name": "",
+              "useMultipleDirections": false,
+              "directions": [
+                {
+                  "looping": false,
+                  "timeBetweenFrames": 0.08,
+                  "sprites": [
+                    {
+                      "hasCustomCollisionMask": false,
+                      "image": "Bullet-1-1.png",
+                      "points": [],
+                      "originPoint": {
+                        "name": "origine",
+                        "x": 4,
+                        "y": 4
+                      },
+                      "centerPoint": {
+                        "automatic": true,
+                        "name": "centre",
+                        "x": 0,
+                        "y": 0
+                      },
+                      "customCollisionMask": []
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ],
       "events": [
@@ -3029,7 +3079,7 @@
               },
               "parameters": [
                 "",
-                "\"255;245;147\""
+                "\"152;216;154\""
               ],
               "subInstructions": []
             },
@@ -3363,7 +3413,7 @@
               "colorR": 74,
               "creationTime": 0,
               "disabled": false,
-              "folded": true,
+              "folded": false,
               "name": "Bullet",
               "source": "",
               "type": "BuiltinCommonInstructions::Group",
@@ -3383,6 +3433,29 @@
                       "parameters": [
                         "BigBullet",
                         "BigBullet.Variable(angle)",
+                        "Variable(bBulletSpeed)",
+                        ""
+                      ],
+                      "subInstructions": []
+                    }
+                  ],
+                  "events": []
+                },
+                {
+                  "disabled": false,
+                  "folded": false,
+                  "type": "BuiltinCommonInstructions::ForEach",
+                  "object": "EnemyBullet",
+                  "conditions": [],
+                  "actions": [
+                    {
+                      "type": {
+                        "inverted": false,
+                        "value": "AddForceAL"
+                      },
+                      "parameters": [
+                        "EnemyBullet",
+                        "EnemyBullet.Variable(angle)",
                         "Variable(bBulletSpeed)",
                         ""
                       ],
@@ -3436,9 +3509,13 @@
                     {
                       "type": {
                         "inverted": false,
-                        "value": "BuiltinCommonInstructions::Once"
+                        "value": "Timer"
                       },
-                      "parameters": [],
+                      "parameters": [
+                        "",
+                        "Variable(spawnTime)",
+                        "\"spawnTime\""
+                      ],
                       "subInstructions": []
                     }
                   ],
@@ -3530,6 +3607,19 @@
                         "trace_target",
                         "=",
                         "0"
+                      ],
+                      "subInstructions": []
+                    },
+                    {
+                      "type": {
+                        "inverted": false,
+                        "value": "ModVarObjet"
+                      },
+                      "parameters": [
+                        "EnemyTank",
+                        "fire_rate",
+                        "=",
+                        "RandomInRange(1, 4)"
                       ],
                       "subInstructions": []
                     },
@@ -3970,6 +4060,130 @@
                     }
                   ],
                   "events": []
+                },
+                {
+                  "disabled": false,
+                  "folded": false,
+                  "type": "BuiltinCommonInstructions::Comment",
+                  "color": {
+                    "b": 109,
+                    "g": 230,
+                    "r": 255,
+                    "textB": 0,
+                    "textG": 0,
+                    "textR": 0
+                  },
+                  "comment": "Enemy fire when lock on Player after enemy firerate timer",
+                  "comment2": ""
+                },
+                {
+                  "disabled": false,
+                  "folded": false,
+                  "type": "BuiltinCommonInstructions::ForEach",
+                  "object": "EnemyTank",
+                  "conditions": [
+                    {
+                      "type": {
+                        "inverted": false,
+                        "value": "LinkedObjects::PickObjectsLinkedTo"
+                      },
+                      "parameters": [
+                        "",
+                        "EnemyGun",
+                        "EnemyTank"
+                      ],
+                      "subInstructions": []
+                    },
+                    {
+                      "type": {
+                        "inverted": false,
+                        "value": "EstTourne"
+                      },
+                      "parameters": [
+                        "EnemyGun",
+                        "LargeBody",
+                        "10",
+                        ""
+                      ],
+                      "subInstructions": []
+                    }
+                  ],
+                  "actions": [],
+                  "events": [
+                    {
+                      "disabled": false,
+                      "folded": false,
+                      "type": "BuiltinCommonInstructions::Standard",
+                      "conditions": [
+                        {
+                          "type": {
+                            "inverted": false,
+                            "value": "ObjectTimer"
+                          },
+                          "parameters": [
+                            "EnemyTank",
+                            "\"fire_rate\"",
+                            "EnemyTank.Variable(fire_rate)"
+                          ],
+                          "subInstructions": []
+                        }
+                      ],
+                      "actions": [
+                        {
+                          "type": {
+                            "inverted": false,
+                            "value": "Create"
+                          },
+                          "parameters": [
+                            "",
+                            "EnemyBullet",
+                            "EnemyGun.PointX(\"bullet\")",
+                            "EnemyGun.PointY(\"bullet\")",
+                            ""
+                          ],
+                          "subInstructions": []
+                        },
+                        {
+                          "type": {
+                            "inverted": false,
+                            "value": "ModVarObjet"
+                          },
+                          "parameters": [
+                            "EnemyBullet",
+                            "angle",
+                            "=",
+                            "EnemyGun.Angle()"
+                          ],
+                          "subInstructions": []
+                        },
+                        {
+                          "type": {
+                            "inverted": false,
+                            "value": "RotateTowardAngle"
+                          },
+                          "parameters": [
+                            "EnemyBullet",
+                            "EnemyGun.Angle()",
+                            "0",
+                            ""
+                          ],
+                          "subInstructions": []
+                        },
+                        {
+                          "type": {
+                            "inverted": false,
+                            "value": "ResetObjectTimer"
+                          },
+                          "parameters": [
+                            "EnemyTank",
+                            "\"fire_rate\""
+                          ],
+                          "subInstructions": []
+                        }
+                      ],
+                      "events": []
+                    }
+                  ]
                 }
               ],
               "parameters": []
